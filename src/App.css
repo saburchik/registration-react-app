@@ -19,6 +19,10 @@ body {
 	background-color: dodgerblue;
 }
 
+h1,h2,h3,h4,h5,h6 {
+	color: #fff;
+}
+
 .App {
 	display: flex;
 	flex-direction: column;
@@ -62,13 +66,19 @@ textarea {
 	border-radius: 0.5rem;
 }
 
-label,
-button {
+label {
+	display: flex;
+	flex-direction: column;
 	margin-top: 1rem;
 }
 
 button {
 	padding: 0.5rem;
+	margin-top: 1rem;
+}
+
+p {
+	color: #fff;
 }
 
 .instructions {
@@ -114,4 +124,5 @@ button {
 
 .line {
 	display: inline-block;
+	text-decoration: underline;
 }
