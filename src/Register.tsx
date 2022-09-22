@@ -4,64 +4,66 @@ import {
 	faTimes,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { useEffect, useRef, useState } from 'react'
+import { AxiosResponse } from 'axios'
+import { FC, FormEvent, useEffect, useRef, useState } from 'react'
 import axios from './api/axios'
 
-const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
-const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
-const REGISTER_URL = '/register'
+const USER_REGEX: RegExp = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
+const PWD_REGEX: RegExp =
+	/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
+const REGISTER_URL: string = '/register'
 
-const Register = () => {
+const Register: FC = () => {
 	const userRef = useRef<HTMLInputElement | null>(null)
 	const errRef = useRef<HTMLParagraphElement | null>(null)
 
-	const [user, setUser] = useState('')
-	const [validName, setValidName] = useState(false)
-	const [userFocus, setUserFocus] = useState(false)
+	const [user, setUser] = useState<string>('')
+	const [validName, setValidName] = useState<boolean>(false)
+	const [userFocus, setUserFocus] = useState<boolean>(false)
 
-	const [pwd, setPwd] = useState('')
-	const [validPwd, setValidPwd] = useState(false)
-	const [pwdFocus, setPwdFocus] = useState(false)
+	const [pwd, setPwd] = useState<string>('')
+	const [validPwd, setValidPwd] = useState<boolean>(false)
+	const [pwdFocus, setPwdFocus] = useState<boolean>(false)
 
-	const [matchPwd, setMatchPwd] = useState('')
-	const [validMatch, setValidMatch] = useState(false)
-	const [matchFocus, setMatchFocus] = useState(false)
+	const [matchPwd, setMatchPwd] = useState<string>('')
+	const [validMatch, setValidMatch] = useState<boolean>(false)
+	const [matchFocus, setMatchFocus] = useState<boolean>(false)
 
-	const [errMsg, setErrMsg] = useState('')
-	const [success, setSuccess] = useState(false)
+	const [errMsg, setErrMsg] = useState<string>('')
+	const [success, setSuccess] = useState<boolean>(false)
 
 	useEffect(() => {
-		userRef?.current?.focus()
+		userRef.current?.focus()
 	}, [])
 	useEffect(() => {
-		const result = USER_REGEX.test(user)
+		const result: boolean = USER_REGEX.test(user)
+		setValidName(result)
 		console.log(result)
 		console.log(user)
-		setValidName(result)
 	}, [user])
 	useEffect(() => {
-		const result = PWD_REGEX.test(pwd)
+		const result: boolean = PWD_REGEX.test(pwd)
+		setValidPwd(result)
 		console.log(result)
 		console.log(pwd)
-		setValidPwd(result)
-		const match = pwd === matchPwd
+		const match: boolean = pwd === matchPwd
 		setValidMatch(match)
 	}, [pwd, matchPwd])
 	useEffect(() => {
 		setErrMsg('')
 	}, [user, pwd, matchPwd])
 
-	const handleSubmit = async (e: any) => {
+	const handleSubmit = async (e: FormEvent<EventTarget>) => {
 		e.preventDefault()
-		const v1 = USER_REGEX.test(user)
-		const v2 = PWD_REGEX.test(pwd)
+		const v1: boolean = USER_REGEX.test(user)
+		const v2: boolean = PWD_REGEX.test(pwd)
 
 		if (!v1 || !v2) {
 			setErrMsg('Invalid Entry')
 			return
 		}
 		try {
-			const response: any = await axios.post(
+			const response: AxiosResponse = await axios.post(
 				REGISTER_URL,
 				JSON.stringify({ user, pwd }),
 				{
@@ -70,12 +72,12 @@ const Register = () => {
 				}
 			)
 			console.log(response.data)
-			console.log(response.accessToken)
-			console.log(JSON.stringify(response))
+			console.log(response)
 			setSuccess(true)
-			// clear input fields
 		} catch (err: any) {
-			if (!err?.response) {
+			console.log(err)
+
+			if (!err?.response.data) {
 				setErrMsg('No Server Response')
 			} else if (err.response?.status === 409) {
 				setErrMsg('Username Taken')
@@ -107,13 +109,15 @@ const Register = () => {
 					<h1>Register</h1>
 					<form onSubmit={handleSubmit}>
 						<label>
-							Username:
-							<span className={validName ? 'valid' : 'hide'}>
-								<FontAwesomeIcon icon={faCheck} />
-							</span>
-							<span className={validName || !user ? 'hide' : 'invalid'}>
-								<FontAwesomeIcon icon={faTimes} />
-							</span>
+							<h3>
+								Username:
+								<span className={validName ? 'valid' : 'hide'}>
+									<FontAwesomeIcon icon={faCheck} />
+								</span>
+								<span className={validName || !user ? 'hide' : 'invalid'}>
+									<FontAwesomeIcon icon={faTimes} />
+								</span>
+							</h3>
 							<input
 								type='text'
 								ref={userRef}
@@ -139,13 +143,15 @@ const Register = () => {
 						</label>
 
 						<label>
-							Password:
-							<span className={validPwd ? 'valid' : 'hide'}>
-								<FontAwesomeIcon icon={faCheck} />
-							</span>
-							<span className={validPwd || !pwd ? 'hide' : 'invalid'}>
-								<FontAwesomeIcon icon={faTimes} />
-							</span>
+							<h3>
+								Password:
+								<span className={validPwd ? 'valid' : 'hide'}>
+									<FontAwesomeIcon icon={faCheck} />
+								</span>
+								<span className={validPwd || !pwd ? 'hide' : 'invalid'}>
+									<FontAwesomeIcon icon={faTimes} />
+								</span>
+							</h3>
 							<input
 								type='password'
 								ref={userRef}
@@ -175,13 +181,15 @@ const Register = () => {
 						</label>
 
 						<label>
-							Confirm Password:
-							<span className={validMatch && matchPwd ? 'valid' : 'hide'}>
-								<FontAwesomeIcon icon={faCheck} />
-							</span>
-							<span className={validMatch || !matchPwd ? 'hide' : 'invalid'}>
-								<FontAwesomeIcon icon={faTimes} />
-							</span>
+							<h3>
+								Confirm Password:
+								<span className={validMatch && matchPwd ? 'valid' : 'hide'}>
+									<FontAwesomeIcon icon={faCheck} />
+								</span>
+								<span className={validMatch || !matchPwd ? 'hide' : 'invalid'}>
+									<FontAwesomeIcon icon={faTimes} />
+								</span>
+							</h3>
 							<input
 								type='password'
 								onChange={e => setMatchPwd(e.target.value)}
