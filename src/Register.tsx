@@ -4,17 +4,20 @@ import {
 	faTimes,
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { AxiosResponse } from 'axios'
+import axios, { AxiosResponse } from 'axios'
 import { FC, FormEvent, useEffect, useRef, useState } from 'react'
-import axios from './api/axios'
+import axiosAPI from './api/axiosAPI'
+import { PWD_REGEX, USER_REGEX } from './regex'
+import { Form, Input, Button } from 'antd'
 
-const USER_REGEX: RegExp = /^[a-zA-Z][a-zA-Z0-9-_]{3,23}$/
-const PWD_REGEX: RegExp =
-	/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/
-const REGISTER_URL: string = '/register'
+const REGISTER_URL: string = '/registesr'
 
 const Register: FC = () => {
-	const userRef = useRef<HTMLInputElement | null>(null)
+	const [form] = Form.useForm()
+	const [loadings, setLoadings] = useState(false)
+
+	const userRef: React.MutableRefObject<HTMLInputElement | null | any> =
+		useRef(null)
 	const errRef = useRef<HTMLParagraphElement | null>(null)
 
 	const [user, setUser] = useState<string>('')
@@ -55,6 +58,7 @@ const Register: FC = () => {
 
 	const handleSubmit = async (e: FormEvent<EventTarget>) => {
 		e.preventDefault()
+		setLoadings(true)
 		const v1: boolean = USER_REGEX.test(user)
 		const v2: boolean = PWD_REGEX.test(pwd)
 
@@ -63,7 +67,7 @@ const Register: FC = () => {
 			return
 		}
 		try {
-			const response: AxiosResponse = await axios.post(
+			const response: AxiosResponse = await axiosAPI.post(
 				REGISTER_URL,
 				JSON.stringify({ user, pwd }),
 				{
@@ -74,18 +78,18 @@ const Register: FC = () => {
 			console.log(response.data)
 			console.log(response)
 			setSuccess(true)
-		} catch (err: any) {
-			console.log(err)
-
-			if (!err?.response.data) {
-				setErrMsg('No Server Response')
-			} else if (err.response?.status === 409) {
-				setErrMsg('Username Taken')
+		} catch (err: unknown) {
+			if (axios.isAxiosError(err)) {
+				if (!err.response?.data) return setErrMsg('No Server Response')
+				if (err.response?.status === 409) return setErrMsg('Username Taken')
+				errRef.current?.focus()
+				return setErrMsg('Registration Failed')
 			} else {
-				setErrMsg('Registration Failed')
+				console.log('Unexpected error: ', err)
+				return 'An unexpected error occurred'
 			}
-			errRef.current?.focus()
 		}
+		//setLoadings(false)
 	}
 
 	return (
@@ -106,20 +110,22 @@ const Register: FC = () => {
 					>
 						{errMsg}
 					</p>
-					<h1>Register</h1>
-					<form onSubmit={handleSubmit}>
-						<label>
-							<h3>
-								Username:
-								<span className={validName ? 'valid' : 'hide'}>
-									<FontAwesomeIcon icon={faCheck} />
-								</span>
-								<span className={validName || !user ? 'hide' : 'invalid'}>
-									<FontAwesomeIcon icon={faTimes} />
-								</span>
-							</h3>
-							<input
-								type='text'
+					<h1>Registration</h1>
+					<Form form={form} onFinish={handleSubmit}>
+						<Form.Item>
+							<label htmlFor='username'>
+								<h3>
+									Username:
+									<span className={validName ? 'valid' : 'hide'}>
+										<FontAwesomeIcon icon={faCheck} />
+									</span>
+									<span className={validName || !user ? 'hide' : 'invalid'}>
+										<FontAwesomeIcon icon={faTimes} />
+									</span>
+								</h3>
+							</label>
+							<Input
+								id='username'
 								ref={userRef}
 								autoComplete='off'
 								onChange={e => setUser(e.target.value)}
@@ -140,21 +146,22 @@ const Register: FC = () => {
 								Must begin with a letter. <br />
 								Letters, numbers, underscores, hyphens allowed.
 							</p>
-						</label>
+						</Form.Item>
 
-						<label>
-							<h3>
-								Password:
-								<span className={validPwd ? 'valid' : 'hide'}>
-									<FontAwesomeIcon icon={faCheck} />
-								</span>
-								<span className={validPwd || !pwd ? 'hide' : 'invalid'}>
-									<FontAwesomeIcon icon={faTimes} />
-								</span>
-							</h3>
-							<input
-								type='password'
-								ref={userRef}
+						<Form.Item>
+							<label htmlFor='password'>
+								<h3>
+									Password:
+									<span className={validPwd ? 'valid' : 'hide'}>
+										<FontAwesomeIcon icon={faCheck} />
+									</span>
+									<span className={validPwd || !pwd ? 'hide' : 'invalid'}>
+										<FontAwesomeIcon icon={faTimes} />
+									</span>
+								</h3>
+							</label>
+							<Input.Password
+								id='password'
 								autoComplete='off'
 								onChange={e => setPwd(e.target.value)}
 								required
@@ -178,20 +185,24 @@ const Register: FC = () => {
 								<span aria-label='dollar sign'>$</span>
 								<span aria-label='percent'>%</span>
 							</p>
-						</label>
+						</Form.Item>
 
-						<label>
-							<h3>
-								Confirm Password:
-								<span className={validMatch && matchPwd ? 'valid' : 'hide'}>
-									<FontAwesomeIcon icon={faCheck} />
-								</span>
-								<span className={validMatch || !matchPwd ? 'hide' : 'invalid'}>
-									<FontAwesomeIcon icon={faTimes} />
-								</span>
-							</h3>
-							<input
-								type='password'
+						<Form.Item>
+							<label htmlFor='confirm'>
+								<h3>
+									Confirm Password:
+									<span className={validMatch && matchPwd ? 'valid' : 'hide'}>
+										<FontAwesomeIcon icon={faCheck} />
+									</span>
+									<span
+										className={validMatch || !matchPwd ? 'hide' : 'invalid'}
+									>
+										<FontAwesomeIcon icon={faTimes} />
+									</span>
+								</h3>
+							</label>
+							<Input.Password
+								id='confirm'
 								onChange={e => setMatchPwd(e.target.value)}
 								required
 								aria-invalid={validMatch ? false : true}
@@ -208,15 +219,18 @@ const Register: FC = () => {
 								<FontAwesomeIcon icon={faInfoCircle} />
 								Must match the first password input field.
 							</p>
-						</label>
+						</Form.Item>
 
-						<button
+						<Button
+							className='signup'
+							type='primary'
+							loading={loadings}
 							disabled={!validName || !validPwd || !validMatch ? true : false}
 						>
 							Sign Up
-						</button>
-					</form>
-					<p>
+						</Button>
+					</Form>
+					<p className='signin'>
 						Already registered? <br />
 						<span className='line'>
 							<a href='/'>Sign In</a>

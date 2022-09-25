@@ -1,5 +1,4 @@
 @import '~antd/dist/antd.css';
-
 @import url('https://fonts.googleapis.com/css2?family=Nunito&display=swap');
 
 * {
@@ -16,19 +15,35 @@ html {
 
 body {
 	min-height: 100vh;
-	background-color: dodgerblue;
+	background: linear-gradient(124deg, rgba(2, 0, 36, 1) 0%, rgba(5, 4, 70, 1) 14%, rgba(6, 6, 89, 1) 22%, rgba(9, 9, 121, 1) 35%, rgba(159, 4, 20, 1) 100%);
 }
 
 h1,h2,h3,h4,h5,h6 {
 	color: #fff;
 }
 
-.App {
+h1 {
+	font-size: 1rem;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+p {
+	margin: 0;
+}
+
+.layout {
+	background: transparent;
+	max-width: initial;
+	min-height: 100vh;
+	padding: 0;
+}
+
+.content {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	align-items: center;
-	min-height: 100vh;
 	padding: 1rem 0.5rem;
 }
 
@@ -41,6 +56,7 @@ section {
 	justify-content: flex-start;
 	padding: 1rem;
 	background-color: rgba(0, 0, 0, 0.4);
+	border-radius: 0.25rem;
 }
 
 form {
@@ -58,22 +74,22 @@ a:visited {
 
 input[type="text"],
 input[type="password"],
-button,
 textarea {
 	font-family: 'Nunito', sans-serif;
 	font-size: 22px;
 	padding: 0.25rem;
-	border-radius: 0.5rem;
 }
 
 label {
 	display: flex;
 	flex-direction: column;
-	margin-top: 1rem;
+	width: fit-content;
 }
 
-button {
-	padding: 0.5rem;
+.signup {
+	font-family: 'Nunito', sans-serif;
+	font-size: 22px;
+	height: fit-content;
 	margin-top: 1rem;
 }
 
@@ -84,9 +100,9 @@ p {
 .instructions {
 	font-size: 0.75rem;
 	border-radius: 0.5rem;
-	background: #000;
+	background: #656565;
 	color: #fff;
-	padding: 0.25rem;
+	padding: 11px;
 	position: relative;
 	bottom: -10px;
 }
@@ -122,7 +138,42 @@ p {
 	margin-bottom: 0.5rem;
 }
 
+.signin {
+	margin-top: 0.5rem;
+	text-align: center;
+}
+
 .line {
 	display: inline-block;
+	font-size: 0.75rem;
+	transition: 0.3s;
+}
+
+.line a:hover {
+	color: #1890ff;
+	text-decoration: underline;
+}
+
+.footer {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	padding: 1rem;
+}
+
+.footer > p {
+	color: #000;
+	font-size: 0.75rem;
+	margin: 0;
+}
+
+.footer > p a {
+	color: #000;
+	transition: 0.3s;
+}
+
+.footer>p a:hover {
+	color: red;
 	text-decoration: underline;
 }
