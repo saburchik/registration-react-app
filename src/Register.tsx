@@ -5,20 +5,21 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import axios, { AxiosResponse } from 'axios'
-import { FC, FormEvent, useEffect, useRef, useState } from 'react'
+import React, { FC, FormEvent, useEffect, useRef, useState } from 'react'
 import axiosAPI from './api/axiosAPI'
 import { PWD_REGEX, USER_REGEX } from './regex'
-import { Form, Input, Button } from 'antd'
+import { Form, Input, Button, Alert } from 'antd'
+import { motion } from 'framer-motion'
+import { IInputForwardRef } from './type'
 
-const REGISTER_URL: string = '/registesr'
+const REGISTER_URL: string = '/register'
 
 const Register: FC = () => {
 	const [form] = Form.useForm()
 	const [loadings, setLoadings] = useState(false)
 
-	const userRef: React.MutableRefObject<HTMLInputElement | null | any> =
-		useRef(null)
-	const errRef = useRef<HTMLParagraphElement | null>(null)
+	const userRef = useRef<HTMLInputElement | null>(null)
+	const errRef = useRef(null)
 
 	const [user, setUser] = useState<string>('')
 	const [validName, setValidName] = useState<boolean>(false)
@@ -77,41 +78,66 @@ const Register: FC = () => {
 			)
 			console.log(response.data)
 			console.log(response)
+			setLoadings(false)
 			setSuccess(true)
 		} catch (err: unknown) {
 			if (axios.isAxiosError(err)) {
-				if (!err.response?.data) return setErrMsg('No Server Response')
-				if (err.response?.status === 409) return setErrMsg('Username Taken')
+				if (!err.response?.data) {
+					setErrMsg('No Server Response')
+				} else if (err.response?.status === 409) {
+					setErrMsg('Username Taken')
+				} else {
+					setErrMsg('Registration Failed')
+				}
+				setLoadings(false)
 				errRef.current?.focus()
-				return setErrMsg('Registration Failed')
 			} else {
+				setLoadings(false)
 				console.log('Unexpected error: ', err)
 				return 'An unexpected error occurred'
 			}
 		}
-		//setLoadings(false)
+	}
+
+	const InputForwardRef: IInputForwardRef = React.forwardRef<any>(
+		(props, forwardedRef) => <Input ref={forwardedRef} {...props} />
+	)
+
+	const variants = {
+		open: { opacity: 1, y: 0 },
+		closed: { opacity: 0, y: '-100%' },
 	}
 
 	return (
 		<>
 			{success ? (
 				<section>
-					<h1>Success!</h1>
-					<p>
-						<a href='/'>Sign In</a>
+					<h1 style={{ color: 'greenyellow' }}>Success!</h1>
+					<p style={{ textAlign: 'center' }}>
+						<a href='/'>Sign Out</a>
 					</p>
 				</section>
 			) : (
 				<section>
-					<p
+					{/* <p
 						ref={errRef}
 						className={errMsg ? 'errmsg' : 'offscreen'}
 						aria-live='assertive'
 					>
 						{errMsg}
-					</p>
+					</p> */}
+					<Alert
+						ref={errRef}
+						className={errMsg ? 'errmsg' : 'offscreen'}
+						aria-live='assertive'
+						message='Error'
+						description={errMsg}
+						type='error'
+						showIcon
+					/>
+
 					<h1>Registration</h1>
-					<Form form={form} onFinish={handleSubmit}>
+					<Form form={form} onSubmitCapture={handleSubmit}>
 						<Form.Item>
 							<label htmlFor='username'>
 								<h3>
@@ -124,7 +150,18 @@ const Register: FC = () => {
 									</span>
 								</h3>
 							</label>
-							<Input
+							<InputForwardRef
+								ref={userRef}
+								id='username'
+								autoComplete='off'
+								required
+								aria-invalid={validName ? false : true}
+								aria-describedby='uidnote'
+								onFocus={() => setUserFocus(true)}
+								onBlur={() => setUserFocus(false)}
+								onChange={(e: any) => setUser(e.target.value)}
+							/>
+							{/* <Input
 								id='username'
 								ref={userRef}
 								autoComplete='off'
@@ -134,8 +171,10 @@ const Register: FC = () => {
 								aria-describedby='uidnote'
 								onFocus={() => setUserFocus(true)}
 								onBlur={() => setUserFocus(false)}
-							/>
-							<p
+							/> */}
+							<motion.p
+								animate={userFocus && user && !validName ? 'open' : 'closed'}
+								variants={variants}
 								id='uinote'
 								className={
 									userFocus && user && !validName ? 'instructions' : 'offscreen'
@@ -145,7 +184,7 @@ const Register: FC = () => {
 								4 to 24 characters. <br />
 								Must begin with a letter. <br />
 								Letters, numbers, underscores, hyphens allowed.
-							</p>
+							</motion.p>
 						</Form.Item>
 
 						<Form.Item>
@@ -170,7 +209,9 @@ const Register: FC = () => {
 								onFocus={() => setPwdFocus(true)}
 								onBlur={() => setPwdFocus(false)}
 							/>
-							<p
+							<motion.p
+								animate={pwdFocus && !validPwd ? 'open' : 'closed'}
+								variants={variants}
 								id='pwdnote'
 								className={pwdFocus && !validPwd ? 'instructions' : 'offscreen'}
 							>
@@ -184,7 +225,7 @@ const Register: FC = () => {
 								<span arial-label='hashtag'>#</span>
 								<span aria-label='dollar sign'>$</span>
 								<span aria-label='percent'>%</span>
-							</p>
+							</motion.p>
 						</Form.Item>
 
 						<Form.Item>
@@ -210,7 +251,9 @@ const Register: FC = () => {
 								onFocus={() => setMatchFocus(true)}
 								onBlur={() => setMatchFocus(false)}
 							/>
-							<p
+							<motion.p
+								animate={matchFocus && !validMatch ? 'open' : 'closed'}
+								variants={variants}
 								id='confirmnote'
 								className={
 									matchFocus && !validMatch ? 'instructions' : 'offscreen'
@@ -218,7 +261,7 @@ const Register: FC = () => {
 							>
 								<FontAwesomeIcon icon={faInfoCircle} />
 								Must match the first password input field.
-							</p>
+							</motion.p>
 						</Form.Item>
 
 						<Button
@@ -226,6 +269,7 @@ const Register: FC = () => {
 							type='primary'
 							loading={loadings}
 							disabled={!validName || !validPwd || !validMatch ? true : false}
+							htmlType='submit'
 						>
 							Sign Up
 						</Button>
