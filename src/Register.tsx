@@ -5,12 +5,18 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import axios, { AxiosResponse } from 'axios'
-import React, { FC, FormEvent, useEffect, useRef, useState } from 'react'
+import React, {
+	FC,
+	FormEvent,
+	RefObject,
+	useEffect,
+	useRef,
+	useState,
+} from 'react'
 import axiosAPI from './api/axiosAPI'
 import { PWD_REGEX, USER_REGEX } from './regex'
-import { Form, Input, Button, Alert } from 'antd'
+import { Form, Input, Button, Alert, InputRef, AlertProps } from 'antd'
 import { motion } from 'framer-motion'
-import { IInputForwardRef } from './type'
 
 const REGISTER_URL: string = '/register'
 
@@ -18,8 +24,8 @@ const Register: FC = () => {
 	const [form] = Form.useForm()
 	const [loadings, setLoadings] = useState(false)
 
-	const userRef = useRef<HTMLInputElement | null>(null)
-	const errRef = useRef(null)
+	const userRef = useRef<InputRef>(null)
+	const errRef = useRef<HTMLParagraphElement>(null)
 
 	const [user, setUser] = useState<string>('')
 	const [validName, setValidName] = useState<boolean>(false)
@@ -99,9 +105,11 @@ const Register: FC = () => {
 		}
 	}
 
-	const InputForwardRef: IInputForwardRef = React.forwardRef<any>(
-		(props, forwardedRef) => <Input ref={forwardedRef} {...props} />
-	)
+	// type InputProps = JSX.IntrinsicElements['input']
+
+	// const InputForwardRef = React.forwardRef<IInputForwardRef, InputProps>(
+	// 	(props, forwardedRef) => <Input ref={forwardedRef} {...props} />
+	// )
 
 	const variants = {
 		open: { opacity: 1, y: 0 },
@@ -119,14 +127,14 @@ const Register: FC = () => {
 				</section>
 			) : (
 				<section>
-					{/* <p
+					<p
 						ref={errRef}
-						className={errMsg ? 'errmsg' : 'offscreen'}
+						className={!errMsg ? 'errmsg' : 'offscreen'}
 						aria-live='assertive'
 					>
 						{errMsg}
-					</p> */}
-					<Alert
+					</p>
+					{/* <Alert
 						ref={errRef}
 						className={errMsg ? 'errmsg' : 'offscreen'}
 						aria-live='assertive'
@@ -134,7 +142,7 @@ const Register: FC = () => {
 						description={errMsg}
 						type='error'
 						showIcon
-					/>
+					/> */}
 
 					<h1>Registration</h1>
 					<Form form={form} onSubmitCapture={handleSubmit}>
@@ -150,7 +158,7 @@ const Register: FC = () => {
 									</span>
 								</h3>
 							</label>
-							<InputForwardRef
+							<Input
 								ref={userRef}
 								id='username'
 								autoComplete='off'
