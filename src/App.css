@@ -143,15 +143,33 @@ p {
 	text-align: center;
 }
 
-.line {
+.sigin__inner {
 	display: inline-block;
 	font-size: 0.75rem;
 	transition: 0.3s;
 }
 
-.line a:hover {
+.sigin__inner a:hover {
 	color: #1890ff;
 	text-decoration: underline;
+}
+
+.alert {
+	display: flex;
+	gap: 5rem;
+}
+
+.alert a {
+	display: flex;
+	justify-content: center;
+}
+
+.signout-btn {
+	font-size: 1rem;
+	height: fit-content;
+	background: #009688;
+	border-radius: 0.5rem;
+	border-color: #fff;
 }
 
 .footer {

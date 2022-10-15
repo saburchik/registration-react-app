@@ -5,17 +5,10 @@ import {
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import axios, { AxiosResponse } from 'axios'
-import React, {
-	FC,
-	FormEvent,
-	RefObject,
-	useEffect,
-	useRef,
-	useState,
-} from 'react'
+import { FC, FormEvent, useEffect, useRef, useState } from 'react'
 import axiosAPI from './api/axiosAPI'
 import { PWD_REGEX, USER_REGEX } from './regex'
-import { Form, Input, Button, Alert, InputRef, AlertProps } from 'antd'
+import { Form, Input, Button, InputRef, Alert } from 'antd'
 import { motion } from 'framer-motion'
 
 const REGISTER_URL: string = '/register'
@@ -25,7 +18,7 @@ const Register: FC = () => {
 	const [loadings, setLoadings] = useState(false)
 
 	const userRef = useRef<InputRef>(null)
-	const errRef = useRef<HTMLParagraphElement>(null)
+	const errRef = useRef<HTMLHeadingElement>(null)
 
 	const [user, setUser] = useState<string>('')
 	const [validName, setValidName] = useState<boolean>(false)
@@ -48,14 +41,10 @@ const Register: FC = () => {
 	useEffect(() => {
 		const result: boolean = USER_REGEX.test(user)
 		setValidName(result)
-		console.log(result)
-		console.log(user)
 	}, [user])
 	useEffect(() => {
 		const result: boolean = PWD_REGEX.test(pwd)
 		setValidPwd(result)
-		console.log(result)
-		console.log(pwd)
 		const match: boolean = pwd === matchPwd
 		setValidMatch(match)
 	}, [pwd, matchPwd])
@@ -105,13 +94,7 @@ const Register: FC = () => {
 		}
 	}
 
-	// type InputProps = JSX.IntrinsicElements['input']
-
-	// const InputForwardRef = React.forwardRef<IInputForwardRef, InputProps>(
-	// 	(props, forwardedRef) => <Input ref={forwardedRef} {...props} />
-	// )
-
-	const variants = {
+	const animationAlert = {
 		open: { opacity: 1, y: 0 },
 		closed: { opacity: 0, y: '-100%' },
 	}
@@ -119,30 +102,27 @@ const Register: FC = () => {
 	return (
 		<>
 			{success ? (
-				<section>
-					<h1 style={{ color: 'greenyellow' }}>Success!</h1>
-					<p style={{ textAlign: 'center' }}>
-						<a href='/'>Sign Out</a>
-					</p>
+				<section className='alert'>
+					<Alert
+						message='Registration was successful!'
+						type='success'
+						showIcon
+					/>
+					<a href='/'>
+						<Button type='primary' className='signout-btn'>
+							Sign Out
+						</Button>
+					</a>
 				</section>
 			) : (
 				<section>
 					<p
 						ref={errRef}
-						className={!errMsg ? 'errmsg' : 'offscreen'}
+						className={errMsg ? 'errmsg' : 'offscreen'}
 						aria-live='assertive'
 					>
 						{errMsg}
 					</p>
-					{/* <Alert
-						ref={errRef}
-						className={errMsg ? 'errmsg' : 'offscreen'}
-						aria-live='assertive'
-						message='Error'
-						description={errMsg}
-						type='error'
-						showIcon
-					/> */}
 
 					<h1>Registration</h1>
 					<Form form={form} onSubmitCapture={handleSubmit}>
@@ -169,20 +149,9 @@ const Register: FC = () => {
 								onBlur={() => setUserFocus(false)}
 								onChange={(e: any) => setUser(e.target.value)}
 							/>
-							{/* <Input
-								id='username'
-								ref={userRef}
-								autoComplete='off'
-								onChange={e => setUser(e.target.value)}
-								required
-								aria-invalid={validName ? false : true}
-								aria-describedby='uidnote'
-								onFocus={() => setUserFocus(true)}
-								onBlur={() => setUserFocus(false)}
-							/> */}
 							<motion.p
 								animate={userFocus && user && !validName ? 'open' : 'closed'}
-								variants={variants}
+								variants={animationAlert}
 								id='uinote'
 								className={
 									userFocus && user && !validName ? 'instructions' : 'offscreen'
@@ -219,7 +188,7 @@ const Register: FC = () => {
 							/>
 							<motion.p
 								animate={pwdFocus && !validPwd ? 'open' : 'closed'}
-								variants={variants}
+								variants={animationAlert}
 								id='pwdnote'
 								className={pwdFocus && !validPwd ? 'instructions' : 'offscreen'}
 							>
@@ -261,7 +230,7 @@ const Register: FC = () => {
 							/>
 							<motion.p
 								animate={matchFocus && !validMatch ? 'open' : 'closed'}
-								variants={variants}
+								variants={animationAlert}
 								id='confirmnote'
 								className={
 									matchFocus && !validMatch ? 'instructions' : 'offscreen'
@@ -284,7 +253,7 @@ const Register: FC = () => {
 					</Form>
 					<p className='signin'>
 						Already registered? <br />
-						<span className='line'>
+						<span className='sigin__inner'>
 							<a href='/'>Sign In</a>
 						</span>
 					</p>
