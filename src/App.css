@@ -84,6 +84,7 @@ label {
 	display: flex;
 	flex-direction: column;
 	width: fit-content;
+	color: #fff;
 }
 
 .signup {

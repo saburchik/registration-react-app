@@ -5,12 +5,14 @@ import './App.css'
 import Register from './Register'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faAtom } from '@fortawesome/free-solid-svg-icons'
+import Login from './Login'
 
 const App: FC = () => {
 	return (
 		<Layout className='layout'>
 			<Content className='content'>
-				<Register />
+				{/* <Register /> */}
+				<Login />
 			</Content>
 			<Footer className='footer'>
 				<FontAwesomeIcon icon={faAtom} />
